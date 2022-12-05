@@ -3,7 +3,7 @@ package com.selim.midi.ports
 import com.selim.midi.definitions.MidiEvent
 
 class MidiEventSender(
-    private val portWrapper: IPortWrapper
+    private val portWrapper: IInputPortWrapper
 ) : IMidiEventSender {
 
     override fun send(event: MidiEvent) {

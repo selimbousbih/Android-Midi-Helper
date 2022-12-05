@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.selim.midi.ports;
+package com.example.android.common.midi;
 
 import android.media.midi.MidiDevice;
 import android.media.midi.MidiDevice.MidiConnection;

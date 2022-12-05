@@ -5,14 +5,15 @@ import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiInputPort
 import android.media.midi.MidiManager
 import android.util.Log
+import com.example.android.common.midi.MidiEventScheduler
 import com.selim.midi.definitions.MidiConstants
 import java.io.IOException
 
 class MidiInputPortOpener(
     private val midiManager: MidiManager
-) : IMidiInputPortOpen {
+) : IMidiInputPortOpen, IInputPortWrapper {
     private var openDevice: MidiDevice? = null
-    var inputPort: MidiInputPort? = null
+    private var inputPort: MidiInputPort? = null
 
     override fun open(
         info: MidiDeviceInfo, portIndex: Int,
@@ -27,7 +28,9 @@ class MidiInputPortOpener(
                 }
             }
 
-            if (device == null) { Log.e(MidiConstants.TAG, "could not open $info") }
+            if (device == null) {
+                Log.e(MidiConstants.TAG, "could not open $info")
+            }
         }, null)
     }
 
@@ -45,5 +48,10 @@ class MidiInputPortOpener(
         } catch (e: IOException) {
             Log.e(MidiConstants.TAG, "cleanup failed", e)
         }
+    }
+
+    @Throws(PortNotOpenException::class)
+    override fun getOpenInputPort(): MidiInputPort {
+        return inputPort ?: throw PortNotOpenException
     }
 }

@@ -60,10 +60,9 @@ class MainActivity : AppCompatActivity() {
                 }.collect()
             }
         }
-
     }
 
-    fun example() {
+    fun receiverOnThreadExample() {
         val devices = midiDeviceSelection.deviceInfoUpdates.value
 
         val selectedDevice = devices.first { it.properties.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER) != "MuseLead" }
@@ -77,30 +76,5 @@ class MainActivity : AppCompatActivity() {
                 println("Received event! $msg")
             }
         )
-    }
-
-    fun setupSpinner(spinner: Spinner) {
-        val devices = midiDeviceSelection.deviceInfoUpdates.value
-
-        val uiDevices = devices.toMidiPortModels()
-
-        val adapter = MidiDeviceArrayAdapter(this, ArrayList(), -1).also {
-            spinner.adapter = it
-
-            it.updateData(uiDevices)
-        }
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, id: Long) {
-                // updateSpinnerSelectedText()
-
-                val item = adapter.getItem(position) ?: return
-                val device = devices.first { it.id == item.deviceId } ?: return
-
-                midiOutputPortOpener.open(device, item.portNumber, createMidiFramerForReceiver { bytes, i, i2, l -> })
-            }
-
-            override fun onNothingSelected(adapterView: AdapterView<*>) {}
-        }
     }
 }

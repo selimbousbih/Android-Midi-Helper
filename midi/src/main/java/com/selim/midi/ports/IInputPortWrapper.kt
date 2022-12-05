@@ -3,8 +3,6 @@ package com.selim.midi.ports
 import android.media.midi.MidiInputPort
 import android.media.midi.MidiOutputPort
 
-interface IPortWrapper {
+interface IInputPortWrapper {
     fun getOpenInputPort(): MidiInputPort
-
-    fun getOpenOutputPort(): MidiOutputPort
 }
