@@ -16,7 +16,7 @@ class MidiEventSender(
         val offset = 0
 
         try {
-            portWrapper.getOpenInputPort().send(buffer, offset, numBytes)
+            portWrapper.getOpenInputPort()?.send(buffer, offset, numBytes)
         } catch (e: Exception) {
             e.printStackTrace()
         }

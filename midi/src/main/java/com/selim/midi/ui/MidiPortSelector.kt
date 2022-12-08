@@ -43,6 +43,15 @@ constructor(
         }
     }
 
+    fun setSelectedSpinnerItem(position: Int) = spinner().setSelection(position)
+
+    fun positionOfItemWithId(id: Int): Int {
+        val adapter = spinner().adapter as? MidiDeviceArrayAdapter ?: return 0
+        return adapter.findPositionById(id)
+    }
+
+    private fun spinner() = findViewById<Spinner>(R.id.inputPortSpinner)
+
     class ViewState(
         val ports: List<MidiPortModel>
     )

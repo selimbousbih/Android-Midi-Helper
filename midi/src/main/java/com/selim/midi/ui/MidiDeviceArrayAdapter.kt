@@ -36,8 +36,8 @@ class MidiDeviceArrayAdapter(context: Context, val data: ArrayList<MidiPortModel
 
     fun getDeviceIdAt(position: Int): Int {
         if (position !in data.indices)
-            return -1000
-        return data[position].deviceId
+            return -1
+        return data[position].getId()
     }
 
     fun updateData(items: List<MidiPortModel>) {
@@ -46,7 +46,7 @@ class MidiDeviceArrayAdapter(context: Context, val data: ArrayList<MidiPortModel
         notifyDataSetChanged()
     }
 
-    fun getPositionOfId(id: Int): Int {
-        return data.find { it.portNumber == id }?.portNumber ?: -1
+    fun findPositionById(id: Int): Int {
+        return data.indexOfFirst { it.getId() == id }
     }
 }

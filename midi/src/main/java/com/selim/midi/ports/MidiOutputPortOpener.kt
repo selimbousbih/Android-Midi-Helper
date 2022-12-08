@@ -11,17 +11,17 @@ import java.io.IOException
 
 class MidiOutputPortOpener(
     private val midiManager: MidiManager
-) : IMidiOutputPortOpen {
-    private var mOpenDevice: MidiDevice? = null
-    private var mOutputPort: MidiOutputPort? = null
+) : IMidiOutputPortOpen, IDeviceRemovedCallback {
+    private var openDevice: MidiDevice? = null
+    private var outputPort: MidiOutputPort? = null
 
     override fun open(info: MidiDeviceInfo, portIndex: Int, receiver: MidiReceiver) {
         closeCurrentPort()
 
         midiManager.openDevice(info, { device ->
-            mOpenDevice = device?.also {
-                mOutputPort = it.openOutputPort(portIndex)
-                mOutputPort?.connect(receiver)
+            openDevice = device?.also {
+                outputPort = it.openOutputPort(portIndex)
+                outputPort?.connect(receiver)
             }
 
             if (device == null) {
@@ -30,17 +30,23 @@ class MidiOutputPortOpener(
         }, null)
     }
 
+    override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
+        if (openDevice?.info == deviceInfo) {
+            closeCurrentPort()
+        }
+    }
+
     override fun closeCurrentPort() {
         try {
-            if (mOutputPort != null) {
+            if (outputPort != null) {
                 Log.i(MidiConstants.TAG, "MidiInputPortSelector.onClose() - close port")
-                mOutputPort!!.close()
+                outputPort!!.close()
             }
-            mOutputPort = null
-            if (mOpenDevice != null) {
-                mOpenDevice!!.close()
+            outputPort = null
+            if (openDevice != null) {
+                openDevice!!.close()
             }
-            mOpenDevice = null
+            openDevice = null
         } catch (e: IOException) {
             Log.e(MidiConstants.TAG, "cleanup failed", e)
         }
