@@ -3,9 +3,6 @@ package com.selim.midimodule
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import android.os.Bundle
-import android.view.View
-import android.widget.AdapterView
-import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -13,7 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.android.common.midi.MidiEventThread
 import com.selim.midi.helpers.createMidiFramerForReceiver
 import com.selim.midi.ports.*
-import com.selim.midimodule.ui.MidiPortSelector
+import com.selim.midi.ui.MidiPortSelector
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -50,9 +47,6 @@ class MainActivity : AppCompatActivity() {
 
                     midiPortSelectorView.setOnMidiPortSelectedListener { model ->
                         val selectedDevice = devices.first { it.id == model.deviceId }
-                        midiOutputPortOpener.open(selectedDevice,
-                            model.portNumber, createMidiFramerForReceiver { bytes, offset, count, timestamp -> })
-
                         midiInputPortOpener.open(
                             selectedDevice, model.portNumber
                         )

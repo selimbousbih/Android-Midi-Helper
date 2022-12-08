@@ -12,7 +12,7 @@ class MidiEventSender(
         var numBytes = 0
         buffer[numBytes++] = type
         buffer[numBytes++] = event.v1.toByte()
-        buffer[numBytes] = event.v2.toByte()
+        buffer[numBytes++] = event.v2.toByte()
         val offset = 0
 
         try {
