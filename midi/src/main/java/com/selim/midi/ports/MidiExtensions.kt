@@ -4,21 +4,23 @@ import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiInputPort
 import android.media.midi.MidiOutputPort
-import com.selim.midi.model.MidiPortModel
+import com.selim.midi.model.DevicePortWrapper
 
-fun Array<MidiDeviceInfo>.toMidiPortModels() = flatMap {
-    it.ports.map { port -> MidiPortModel(it.id, port.portNumber, it.getName()) }
+
+fun Collection<DevicePortWrapper>.withType(type: Int) = filter {
+    it.portInfo.type == type
 }
 
-fun Array<MidiDeviceInfo>.toMidiPortModels(type: Int) = flatMap {
-    it.ports
-        .filter { port -> port.type == type }
-        .map { port -> MidiPortModel(it.id, port.portNumber, it.getName()) }
+fun Collection<DevicePortWrapper>.inputOnly() = filter {
+    it.portInfo.type == MidiDeviceInfo.PortInfo.TYPE_INPUT
 }
 
-fun Collection<MidiDeviceInfo>.toMidiPortModels() = flatMap {
-    it.ports.map { port -> MidiPortModel(it.id, port.portNumber, port.name) }
+fun Array<MidiDeviceInfo>.toDevicePortModels() = flatMap {
+    it.ports.map { port -> DevicePortWrapper(it, port) }
 }
+
+fun MidiDeviceInfo.toDevicePortModels(): List<DevicePortWrapper>
+    = ports.map { port -> DevicePortWrapper(this, port) }
 
 fun Array<MidiDeviceInfo>.getInputPorts() = flatMap { it.getInputPorts() }
 

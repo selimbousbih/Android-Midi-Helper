@@ -10,6 +10,8 @@ import android.util.Log
 import com.selim.midi.definitions.MidiConstants
 import java.io.IOException
 
+typealias OpenPortCallback = (MidiInputPort?) -> Unit
+
 class MidiInputPortOpener(
     private val midiManager: MidiManager
 ) : IMidiInputPortOpen, IInputPortWrapper, IDeviceRemovedCallback {
@@ -18,7 +20,7 @@ class MidiInputPortOpener(
 
     override fun open(
         info: MidiDeviceInfo, portIndex: Int,
-        onPortOpenResult: (MidiInputPort?) -> Unit
+        onPortOpenResult: OpenPortCallback
     ) {
         closeCurrentPort()
 
@@ -27,8 +29,8 @@ class MidiInputPortOpener(
                 inputPort = it.openInputPortOrHandleError(portIndex) {
                     Log.e(MidiConstants.TAG, "Could not open input port on $info")
                 }
-                onPortOpenResult(inputPort)
             }
+            onPortOpenResult(inputPort)
 
             if (device == null) {
                 Log.e(MidiConstants.TAG, "Could not open $info")
@@ -36,11 +38,22 @@ class MidiInputPortOpener(
         }, Handler(Looper.getMainLooper()))
     }
 
+    fun openFromDevice(
+        midiDevice: MidiDevice, portIndex: Int, onPortOpenResult: OpenPortCallback = {}
+    ) {
+        closeCurrentPort()
+        openDevice = midiDevice
+        inputPort = midiDevice.openInputPort(portIndex)
+        onPortOpenResult(inputPort)
+    }
+
     override fun getOpenInputPort(): MidiInputPort? {
         return inputPort
     }
 
-    override fun selectedPortId(): Int = (openDevice?.info?.id ?: 0) + (inputPort?.portNumber ?: 0)
+    override fun getOpenDeviceInfo(): MidiDeviceInfo? {
+        return openDevice?.info
+    }
 
     override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
         if (openDevice?.info == deviceInfo) {

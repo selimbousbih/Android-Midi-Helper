@@ -1,6 +1,7 @@
 package com.selim.midi.ui
 
 import android.content.Context
+import android.media.midi.MidiDeviceInfo
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +9,7 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.selim.midi.R
-import com.selim.midi.model.MidiPortModel
+import com.selim.midi.model.DevicePortWrapper
 
 open class MidiPortSelector
 @JvmOverloads
@@ -27,32 +28,34 @@ constructor(
     fun render(state: ViewState) {
         val spinner = findViewById<Spinner>(R.id.inputPortSpinner)
 
-        spinner.adapter = MidiDeviceArrayAdapter(context, ArrayList(state.ports), spinnerLayout)
+        spinner.adapter = MidiDevicePortArrayAdapter(context, ArrayList(state.ports), spinnerLayout)
     }
 
-    fun setOnMidiPortSelectedListener(block: (MidiPortModel) -> Unit) {
-        val spinner = findViewById<Spinner>(R.id.inputPortSpinner)
+    fun setOnMidiPortSelectedListener(block: (DevicePortWrapper) -> Unit) {
+        spinner().apply {
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    val adapter = adapter as? MidiDevicePortArrayAdapter ?: return
+                    adapter.getItem(position)?.let(block::invoke)
+                }
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(adapterView: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val adapter = spinner.adapter as? MidiDeviceArrayAdapter ?: return
-                adapter.getItem(position)?.let(block::invoke)
+                override fun onNothingSelected(adapterView: AdapterView<*>) {}
             }
-
-            override fun onNothingSelected(adapterView: AdapterView<*>) {}
         }
     }
 
+    fun getSelectedItem(): DevicePortWrapper? = spinner().selectedItem as? DevicePortWrapper
+
     fun setSelectedSpinnerItem(position: Int) = spinner().setSelection(position)
 
-    fun positionOfItemWithId(id: Int): Int {
-        val adapter = spinner().adapter as? MidiDeviceArrayAdapter ?: return 0
-        return adapter.findPositionById(id)
+    fun positionOfDevice(deviceInfo: MidiDeviceInfo): Int {
+        val adapter = spinner().adapter as? MidiDevicePortArrayAdapter ?: return 0
+        return adapter.data.indexOfFirst { it.deviceInfo == deviceInfo }
     }
 
     private fun spinner() = findViewById<Spinner>(R.id.inputPortSpinner)
 
     class ViewState(
-        val ports: List<MidiPortModel>
+        val ports: List<DevicePortWrapper>
     )
 }

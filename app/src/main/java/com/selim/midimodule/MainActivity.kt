@@ -11,7 +11,8 @@ import com.example.android.common.midi.MidiEventThread
 import com.selim.midi.helpers.createMidiFramerForReceiver
 import com.selim.midi.ports.*
 import com.selim.midi.ui.MidiPortSelector
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -37,19 +38,16 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 devices.onEach { devices ->
+                    val inputDevices = devices
+                        .toDevicePortModels()
+                        .withType(MidiDeviceInfo.PortInfo.TYPE_INPUT)
+
                     midiPortSelectorView.render(
-                        MidiPortSelector.ViewState(
-                            devices.toMidiPortModels(
-                                MidiDeviceInfo.PortInfo.TYPE_INPUT
-                            )
-                        )
+                        MidiPortSelector.ViewState(inputDevices)
                     )
 
                     midiPortSelectorView.setOnMidiPortSelectedListener { model ->
-                        val selectedDevice = devices.first { it.id == model.deviceId }
-                        midiInputPortOpener.open(
-                            selectedDevice, model.portNumber
-                        )
+                        midiInputPortOpener.open(model.deviceInfo, model.portInfo.portNumber)
                     }
                 }.collect()
             }

@@ -1,4 +1,4 @@
-package com.selim.midimodule
+package com.selim.midi.ui
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,11 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import com.selim.midi.model.MidiPortModel
+import com.selim.midi.model.DevicePortWrapper
+import com.selim.midi.ports.getName
 
 
-class MidiDeviceArrayAdapter(context: Context, val data: ArrayList<MidiPortModel>, itemLayoutId: Int) :
-    ArrayAdapter<MidiPortModel>(context, itemLayoutId, data) {
+class MidiDevicePortArrayAdapter(context: Context, val data: ArrayList<DevicePortWrapper>, itemLayoutId: Int) :
+    ArrayAdapter<DevicePortWrapper>(context, itemLayoutId, data) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         return createItemView(position, convertView, parent)
@@ -28,25 +29,15 @@ class MidiDeviceArrayAdapter(context: Context, val data: ArrayList<MidiPortModel
         )
 
         getItem(position)?.apply {
-            view.findViewById<TextView>(android.R.id.text1).text = name
+            view.findViewById<TextView>(android.R.id.text1).text = deviceInfo.getName()
         }
 
         return view
     }
 
-    fun getDeviceIdAt(position: Int): Int {
-        if (position !in data.indices)
-            return -1000
-        return data[position].deviceId
-    }
-
-    fun updateData(items: List<MidiPortModel>) {
+    fun updateData(items: List<DevicePortWrapper>) {
         data.clear()
         data.addAll(items)
         notifyDataSetChanged()
-    }
-
-    fun getPositionOfId(id: Int): Int {
-        return data.find { it.portNumber == id }?.portNumber ?: -1
     }
 }
